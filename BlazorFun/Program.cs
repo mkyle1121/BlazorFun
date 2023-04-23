@@ -19,7 +19,7 @@ builder.Services.AddScoped(sp =>
     });
 
 builder.Services.AddSingleton(sp => 
-    new CosmosClient("AccountEndpoint=https://mkcosmos.documents.azure.com:443/;AccountKey=kUV1Acr3IDBCwIYp5KsplVZb5PkYTeuFKya2kIkZU4PNVhqhPjpvSLZcahMLfWwn4IRVF7Tz4HYUACDbrKjxVQ==;"));
+    new CosmosClient(builder.Configuration["CosmosConnectionString"]));
 
 var app = builder.Build();
 

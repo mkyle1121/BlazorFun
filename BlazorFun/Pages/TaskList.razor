@@ -29,7 +29,7 @@
                     {
                         <div class="input-group mb-3">
                             <div class="input-group-text">
-                                <input class="form-check-input mt-0" type="checkbox" value="" @bind=taskItem.IsChecked>
+                                <input class="form-check-input mt-0" type="checkbox" value="" @bind=taskItem.IsChecked @oninput="e => UpdateTaskCheckbox(taskItem)">
                             </div>
                             <input type="text" class="form-control" value="@taskItem.TaskValue">
                             <button class="btn btn-danger rounded" @onclick="e => DeleteTask(taskItem)">
@@ -97,6 +97,20 @@
     {
         var container = cosmosClient.GetContainer("blazorfun", "tasklist");
         await container.DeleteItemAsync<TaskItem>(taskItem.Id.ToString(), new PartitionKey(taskItem.Id.ToString()));
+
+        await GetTasksAsync();
+    }
+
+    private async Task UpdateTaskCheckbox(TaskItem taskItem)
+    {
+        var container = cosmosClient.GetContainer("blazorfun", "tasklist");
+
+        List<PatchOperation> patchOperations = new()
+        {
+            PatchOperation.Replace("/IsChecked", !taskItem.IsChecked)
+        };
+
+        ItemResponse<dynamic> item = await container.PatchItemAsync<dynamic>(taskItem.Id.ToString(), new PartitionKey(taskItem.Id.ToString()), patchOperations);
 
         await GetTasksAsync();
     }
