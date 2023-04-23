@@ -1,0 +1,55 @@
+﻿@page "/tasklist"
+@using BlazorFun.Models;
+
+<div class="mt-2">
+    <div class="container">
+        <div class="row justify-content-center">
+
+            <div class="d-flex justify-content-center m-2">
+                <h3>Enter a new task below</h3>
+            </div>            
+
+            <div class="col-4 rounded p-3" style="background-color: palegoldenrod">
+                <div class="input-group mb-3">                    
+                    <input type="text" class="form-control text-muted" onclick="this.select()" @bind="NewTaskInput" @bind:after="NewTask">
+                </div> 
+
+                @foreach (var taskItem in tasks)
+                {
+                    <div class="input-group mb-3">
+                        <div class="input-group-text">
+                            <input class="form-check-input mt-0" type="checkbox" value="" @bind=taskItem.IsChecked>
+                        </div>
+                        <input type="text" class="form-control" value="@taskItem.TaskValue">
+                        <button class="btn btn-danger rounded" @onclick="e => DeleteTask(taskItem)"> 
+                            Delete <i class="bi bi-recycle"></i>  
+                        </button>                        
+                    </div>
+                }
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+@code
+{
+    private string NewTaskInput = "Enter New Task";
+    private List<TaskItem> tasks = new();
+
+    private async Task NewTask()
+    {
+        if (!string.IsNullOrEmpty(NewTaskInput))
+        {
+            tasks.Insert(0, new TaskItem { TaskValue = NewTaskInput });
+            NewTaskInput = string.Empty;
+        }
+    }
+
+    private void DeleteTask(TaskItem taskItem)
+    {
+        tasks.Remove(taskItem);
+    }
+}

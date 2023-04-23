@@ -1,0 +1,41 @@
+﻿@inherits LayoutComponentBase
+
+<PageTitle>BlazorFun</PageTitle>
+
+<nav class="navbar navbar-light" style="background-color:mediumpurple;">
+    <div class="container-fluid">
+
+        <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasContent">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="offcanvas offcanvas-start" tabindex="-1" id="offcanvasContent">
+
+            <div class="offcanvas-header">
+                <h5 class="offcanvas-title">BlazorFun</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
+            </div>
+
+            <div class="offcanvas-body bg-light"> 
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" data-bs-dismiss="offcanvas">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/bookfinder" data-bs-dismiss="offcanvas">BookFinder</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/camera" data-bs-dismiss="offcanvas">Camera</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/tasklist" data-bs-dismiss="offcanvas">TaskList</a>
+                    </li>
+               </ul>
+            </div>
+        </div>  
+    </div>
+</nav>
+
+<main>
+    @Body 
+</main>

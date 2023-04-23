@@ -1,0 +1,82 @@
+﻿@page "/bookfinder"
+@inject HttpClient Http
+@using BlazorFun.Models
+
+<div class="mt-2" style="background-color:lightblue;">
+<div class="container rounded p-3">
+        <div class="row justify-content-center p-2 rounded" style="background-color:lightcoral">
+
+        <div class="col-4">
+            <div class="input-group">
+                <div class="form-floating">
+                    <input type="search" id="searchForm" class="form-control" placeholder="Search" value="@searchTerm" @onchange="Search" />
+                    <label for="searchForm">Search</label>                    
+                </div>
+                    <button type="button" class="btn ms-1 rounded" style="background-color:lightblue">
+                    <i class="bi bi-search"></i>
+                </button>                
+            </div>
+        </div>
+
+        <div class="col-2">
+            <h1>
+                <span class="badge bg-light text-muted mt-1"> Count: @booksFromSearch.Count </span>
+            </h1>
+        </div>
+
+    </div>
+
+    <br />
+
+    <div class="row">
+
+        @if (booksFromSearch == null)
+        {
+            <div class="spinner-border" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+        }
+        else
+        {
+            @foreach (var book in booksFromSearch)
+            {
+                <div class="col-3 mb-1">
+                    <div class="card h-100 border border-dark border-3">
+                        <img src="@book.imageLink" class="card-img-top" style="max-height: 400px;">
+                        <div class="card-body bg-light">
+                            <h5 class="card-title">@book.title</h5>
+                            <p class="card-subtitle">@book.author</p>
+                            <p class="card-subtitle text-muted mb-1">@book.pages pages</p>                            
+                            <a href="@book.link" class="btn btn-dark" target="_blank">More Info</a>
+                        </div>
+                    </div>
+                </div>
+            }
+        }     
+    </div>
+</div>
+</div>
+
+@code 
+{
+    private List<Book>? books = new();
+    private List<Book>? booksFromSearch = new();
+
+    private string? searchTerm { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        books = (await Http.GetFromJsonAsync<Book[]>("BookList.json"))?.ToList();
+        booksFromSearch = books;
+    }
+
+    public async Task Search(ChangeEventArgs e)
+    {      
+        if (e.Value is not null)
+        {
+            searchTerm = e.Value.ToString().ToLower();
+            booksFromSearch = books.Where(s => s.title.ToLower().Contains(searchTerm)).ToList();
+        }
+    }
+
+}
