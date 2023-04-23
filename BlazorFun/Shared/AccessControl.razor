@@ -1,0 +1,12 @@
+﻿<AuthorizeView>
+    <Authorized>
+        <div class="d-flex">
+        <p class="m-2">[Hello, @context.User.Identity.Name]</p>
+        <a class="nav-link fw-bold" href="logout">Log out</a>
+        </div>
+    </Authorized>
+    <NotAuthorized>
+        <a class="nav-link fw-bold" href="login?redirectUri=/">Log in</a>
+    </NotAuthorized>
+</AuthorizeView>
+

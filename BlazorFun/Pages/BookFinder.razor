@@ -1,10 +1,12 @@
-﻿@page "/bookfinder"
+﻿@using BlazorFun.Models
 @inject HttpClient Http
-@using BlazorFun.Models
+
+@page "/bookfinder"
+@attribute [Authorize]
 
 <div class="mt-2" style="background-color:lightblue;">
 <div class="container rounded p-3">
-        <div class="row justify-content-center p-2 rounded" style="background-color:lightcoral">
+        <div class="row justify-content-center p-2 rounded" style="background-color:palegoldenrod;">
 
         <div class="col-4">
             <div class="input-group">

@@ -1,15 +1,25 @@
-using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Components.Web;
+using Auth0.AspNetCore.Authentication;
+using Microsoft.Azure.Cosmos;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
+
+builder.Services
+    .AddAuth0WebAppAuthentication(options => {
+        options.Domain = builder.Configuration["Auth0:Domain"];
+        options.ClientId = builder.Configuration["Auth0:ClientId"];
+    });
+
 
 builder.Services.AddScoped(sp =>
     new HttpClient
     {
         BaseAddress = new Uri("https://localhost:7274")
     });
+
+builder.Services.AddSingleton(sp => 
+    new CosmosClient("AccountEndpoint=https://mkcosmos.documents.azure.com:443/;AccountKey=kUV1Acr3IDBCwIYp5KsplVZb5PkYTeuFKya2kIkZU4PNVhqhPjpvSLZcahMLfWwn4IRVF7Tz4HYUACDbrKjxVQ==;"));
 
 var app = builder.Build();
 
@@ -25,6 +35,9 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
+
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.MapBlazorHub();
 app.MapFallbackToPage("/_Host");

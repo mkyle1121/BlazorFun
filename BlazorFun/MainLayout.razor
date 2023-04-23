@@ -6,29 +6,35 @@
     <div class="container-fluid">
 
         <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasContent">
-            <span class="navbar-toggler-icon"></span>
+            <span class="navbar-toggler-icon"></span>            
         </button>
+
+        <ul class="navbar-nav me-3">
+            <li class="nav-item">                
+                <AccessControl />
+            </li>
+        </ul>
 
         <div class="offcanvas offcanvas-start" tabindex="-1" id="offcanvasContent">
 
-            <div class="offcanvas-header">
+            <div class="offcanvas-header" style="background-color:mediumpurple;">
                 <h5 class="offcanvas-title">BlazorFun</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
             </div>
 
-            <div class="offcanvas-body bg-light"> 
+            <div class="offcanvas-body" style="background-color:mediumpurple;">
                 <ul class="navbar-nav">
                     <li class="nav-item">
                         <a class="nav-link" href="#" data-bs-dismiss="offcanvas">Home</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="/bookfinder" data-bs-dismiss="offcanvas">BookFinder</a>
+                        <a class="nav-link" href="bookfinder" data-bs-dismiss="offcanvas">BookFinder</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="/camera" data-bs-dismiss="offcanvas">Camera</a>
+                        <a class="nav-link" href="camera" data-bs-dismiss="offcanvas">Camera</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="/tasklist" data-bs-dismiss="offcanvas">TaskList</a>
+                        <a class="nav-link" href="tasklist" data-bs-dismiss="offcanvas">TaskList</a>
                     </li>
                </ul>
             </div>

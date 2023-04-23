@@ -1,5 +1,8 @@
-﻿@page "/tasklist"
-@using BlazorFun.Models;
+﻿@inject AuthenticationStateProvider authenticationStateProvider
+@inject CosmosClient cosmosClient
+
+@page "/tasklist"
+@attribute [Authorize]
 
 <div class="mt-2">
     <div class="container">
@@ -11,21 +14,30 @@
 
             <div class="col-4 rounded p-3" style="background-color: palegoldenrod">
                 <div class="input-group mb-3">                    
-                    <input type="text" class="form-control text-muted" onclick="this.select()" @bind="NewTaskInput" @bind:after="NewTask">
+                    <input type="text" class="form-control text-muted" onclick="this.select()" @bind="NewTaskInput" @bind:after="CreateTask">
                 </div> 
 
-                @foreach (var taskItem in tasks)
+                @if (loading)
                 {
-                    <div class="input-group mb-3">
-                        <div class="input-group-text">
-                            <input class="form-check-input mt-0" type="checkbox" value="" @bind=taskItem.IsChecked>
-                        </div>
-                        <input type="text" class="form-control" value="@taskItem.TaskValue">
-                        <button class="btn btn-danger rounded" @onclick="e => DeleteTask(taskItem)"> 
-                            Delete <i class="bi bi-recycle"></i>  
-                        </button>                        
+                    <div class="spinner-border text-warning" role="status">
+                        <span class="visually-hidden">Loading...</span>
                     </div>
                 }
+                else
+                {
+                    @foreach (var taskItem in tasks)
+                    {
+                        <div class="input-group mb-3">
+                            <div class="input-group-text">
+                                <input class="form-check-input mt-0" type="checkbox" value="" @bind=taskItem.IsChecked>
+                            </div>
+                            <input type="text" class="form-control" value="@taskItem.TaskValue">
+                            <button class="btn btn-danger rounded" @onclick="e => DeleteTask(taskItem)">
+                                Delete <i class="bi bi-recycle"></i>
+                            </button>
+                        </div>
+                    }
+                }               
 
             </div>
         </div>
@@ -38,18 +50,74 @@
 {
     private string NewTaskInput = "Enter New Task";
     private List<TaskItem> tasks = new();
+    private string name;
+    private string sid;
+    private bool loading = true;
 
-    private async Task NewTask()
+    protected override async Task  OnInitializedAsync()
+    {
+        var authState = await authenticationStateProvider.GetAuthenticationStateAsync();
+        if (authState != null)
+        {
+            name = authState.User.Identity.Name;
+            sid = authState.User.Claims.Where(x => x.Type == "sid").FirstOrDefault().Value;            
+        }
+
+        await GetTasksAsync();
+    }
+
+    private async Task CreateTask()
     {
         if (!string.IsNullOrEmpty(NewTaskInput))
         {
-            tasks.Insert(0, new TaskItem { TaskValue = NewTaskInput });
-            NewTaskInput = string.Empty;
-        }
+            try
+            {
+                var container = cosmosClient.GetContainer("blazorfun", "tasklist");
+                var taskItem = new TaskItem
+                {
+                    Id = Guid.NewGuid(),
+                    Sid = sid,
+                    TaskValue = NewTaskInput
+                };
+
+                var item = await container.CreateItemAsync<TaskItem>(taskItem, new PartitionKey(taskItem.Id.ToString()));
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+            }
+
+            NewTaskInput = string.Empty;            
+        } 
+
+        await GetTasksAsync();
     }
 
-    private void DeleteTask(TaskItem taskItem)
+    private async Task DeleteTask(TaskItem taskItem)
     {
-        tasks.Remove(taskItem);
+        var container = cosmosClient.GetContainer("blazorfun", "tasklist");
+        await container.DeleteItemAsync<TaskItem>(taskItem.Id.ToString(), new PartitionKey(taskItem.Id.ToString()));
+
+        await GetTasksAsync();
+    }
+
+    private async Task GetTasksAsync()
+    {
+        tasks.Clear();
+
+        var container = cosmosClient.GetContainer("blazorfun", "tasklist");
+        IOrderedQueryable<TaskItem> queryable = container.GetItemLinqQueryable<TaskItem>();
+        var matches = queryable.Where(x => x.Sid == sid);
+        using FeedIterator<TaskItem> linqFeed = matches.ToFeedIterator();
+
+        while (linqFeed.HasMoreResults)
+        {
+            FeedResponse<TaskItem> response = await linqFeed.ReadNextAsync();
+            foreach (var item in response)
+                tasks.Add(item);            
+        }
+
+        loading = false;
+        StateHasChanged();
     }
 }
